@@ -6,10 +6,10 @@ AI girlfriends et les griefbots, pour des élèves de niveau B1-B2.
 | Jeu | Objectif |
 |---|---|
 | 1. Texte à trous | Vocabulaire clé (glisser-déposer ou clic) |
-| 2. Trier les arguments | Associer chaque argument au camp pour ou contre |
+| 2. Trier les arguments | Associer chaque argument au camp pour ou contre (deux manches) |
 | 3. Traduction FR vers EN | QCM sur les phrases de débat à réutiliser |
 | 4. Compréhension orale | Identifier la phrase entendue |
-| 5. Rebuttal Arena | Choisir la meilleure riposte (concede & rebut) |
+| 5. Rebuttal Arena | Manche 1 : choisir la meilleure riposte (concede & rebut) ; manche 2 : trier les ripostes ratées (capitulation, attaque ad hominem, hors-sujet) |
 
 ## Licence
 
