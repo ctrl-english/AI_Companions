@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Girlfriends & Griefbots : jeux de révision</title>
+<style>
+  :root{
+    --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
+    --primary:#4f46e5; --primary-soft:#eef2ff;
+    --good:#15803d; --good-soft:#dcfce7; --bad:#b91c1c; --bad-soft:#fee2e2;
+    --g1:#0ea5e9; --g2:#d97706; --g3:#059669; --g4:#7c3aed; --g5:#e11d48;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,#eef2ff 0%,#fdf4ff 100%);min-height:100vh}
+  header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.9);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);padding:.5rem 1rem;display:flex;align-items:center;gap:.75rem}
+  .icon-btn{border:1px solid var(--line);background:#fff;border-radius:.6rem;padding:.4rem .6rem;
+    font-size:1rem;cursor:pointer}
+  .icon-btn:hover{background:var(--primary-soft)}
+  .brand{line-height:1.15}
+  .brand strong{display:block;font-size:.95rem}
+  .brand span{font-size:.75rem;color:var(--muted)}
+  main{max-width:900px;margin:0 auto;padding:1rem 1rem 4rem}
+  .screen{display:none}
+  .screen.active{display:block}
+  h2{margin:.25rem 0 .5rem;font-size:1.25rem}
+  .rules{color:var(--muted);font-size:.9rem;margin:.25rem 0 1rem}
+  .card{background:#fff;border:1px solid var(--line);border-radius:1rem;box-shadow:0 1px 3px rgba(15,23,42,.08);padding:1rem}
+  .hero{background:linear-gradient(120deg,#4f46e5,#9333ea);color:#fff;border-radius:1.25rem;padding:1.25rem;margin:.5rem 0 1.25rem}
+  .hero h1{margin:0 0 .35rem;font-size:1.35rem}
+  .hero p{margin:0;opacity:.9;font-size:.95rem}
+  .games{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.85rem}
+  .game-card{background:#fff;border:1px solid var(--line);border-left:6px solid var(--primary);
+    border-radius:.9rem;padding:.9rem 1rem;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease;text-align:left}
+  .game-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(79,70,229,.15)}
+  .game-card .num{font-size:.72rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+  .game-card h3{margin:.15rem 0 .35rem;font-size:1rem}
+  .game-card p{margin:0;font-size:.85rem;color:var(--muted)}
+  .game-card .best{display:inline-block;margin-top:.5rem;font-size:.75rem;color:var(--primary);font-weight:600}
+  .c1{border-left-color:var(--g1)} .c2{border-left-color:var(--g2)} .c3{border-left-color:var(--g3)}
+  .c4{border-left-color:var(--g4)} .c5{border-left-color:var(--g5)}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:.75rem;
+    padding:.55rem 1.1rem;font-size:.95rem;cursor:pointer;font-weight:600}
+  .btn:hover{background:var(--primary-soft)}
+  .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn.primary:hover{filter:brightness(1.1)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+  .feedback{margin-top:.8rem;font-size:.95rem;min-height:1.2em}
+  .feedback.good{color:var(--good);font-weight:600}
+  .feedback.bad{color:var(--bad);font-weight:600}
+  .wordbox{background:var(--primary-soft);border:1px dashed var(--primary);border-radius:.9rem;
+    padding:.7rem;display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+  .chip{background:#fff;border:1px solid var(--primary);border-radius:999px;padding:.35rem .85rem;
+    font-size:.95rem;cursor:grab;user-select:none;transition:box-shadow .12s}
+  .chip:hover{box-shadow:0 2px 8px rgba(79,70,229,.25)}
+  .chip.selected{outline:3px solid #a5b4fc;outline-offset:1px}
+  .chip.done{display:none}
+  .passage{font-size:1.05rem;line-height:2.1;background:#fff}
+  .slot{display:inline-block;min-width:110px;padding:0 .4rem;margin:0 .15rem;border-bottom:2px solid var(--primary);
+    background:var(--primary-soft);border-radius:.4rem .4rem 0 0;text-align:center;cursor:pointer;
+    color:#6366f1;font-weight:600;line-height:1.4}
+  .slot.filled{color:var(--ink)}
+  .slot.good{background:var(--good-soft);border-color:var(--good)}
+  .slot.bad{background:var(--bad-soft);border-color:var(--bad)}
+  .motion{background:#fff;border:1px solid var(--line);border-left:6px solid var(--primary);
+    border-radius:.75rem;padding:.75rem 1rem;font-style:italic;font-size:1.02rem;margin-bottom:.5rem}
+  .hint{font-size:.85rem;color:var(--muted);margin:.15rem 0 .8rem}
+  .bins{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+  .bin{border-radius:.9rem;border:2px dashed;padding:.5rem;min-height:110px;transition:background .15s}
+  .bin.over{background:#f5f3ff}
+  .bin h3{font-size:.9rem;margin:.15rem 0 .5rem;text-align:center}
+  .bin.for{border-color:var(--good)}
+  .bin.against{border-color:var(--bad)}
+  .pool{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.85rem;background:#fff;
+    border:1px solid var(--line);border-radius:.9rem;padding:.7rem;min-height:56px}
+  .acard{background:#fff;border:1px solid var(--line);border-left:4px solid var(--g2);border-radius:.6rem;
+    padding:.5rem .7rem;font-size:.9rem;cursor:grab;user-select:none}
+  .acard.selected{outline:3px solid #fcd34d;outline-offset:1px}
+  .acard.good{background:var(--good-soft);border-color:var(--good)}
+  .acard.bad{background:var(--bad-soft);border-color:var(--bad)}
+  .qhead{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+  .scorepill{font-size:.8rem;color:var(--muted);white-space:nowrap}
+  .prompt{font-size:1.15rem;margin:.75rem 0;padding:1rem;background:var(--primary-soft);
+    border-radius:.9rem;border:1px solid #c7d2fe}
+  .options{display:grid;gap:.55rem;margin-top:.75rem}
+  .opt{text-align:left;background:#fff;border:1px solid var(--line);border-radius:.75rem;
+    padding:.65rem .9rem;font-size:.98rem;cursor:pointer;transition:border-color .12s}
+  .opt:hover{border-color:var(--primary)}
+  .opt.good{background:var(--good-soft);border-color:var(--good);font-weight:600}
+  .opt.bad{background:var(--bad-soft);border-color:var(--bad)}
+  .opt:disabled{cursor:default;opacity:.92}
+  .tip{background:#fffbeb;border:1px solid #fde68a;border-radius:.75rem;padding:.65rem .9rem;
+    font-size:.88rem;margin-top:.8rem;display:none}
+  .tip.show{display:block}
+  .audio-btn{background:var(--g4);color:#fff;border:none;border-radius:.9rem;padding:.7rem 1.3rem;
+    font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;font-weight:600}
+  .audio-btn:hover{filter:brightness(1.12)}
+  .transcript{margin-top:.6rem;font-style:italic;color:var(--muted);display:none}
+  .transcript.show{display:block}
+  .opponent{background:#f1f5f9;border:1px solid var(--line);border-left:6px solid var(--g5);
+    border-radius:.75rem;padding:.8rem 1rem;font-style:italic;margin:.6rem 0 0}
+  .oplabel{font-style:normal;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .progress{font-size:.8rem;color:var(--muted)}
+  .final{background:var(--primary-soft);border:1px solid #c7d2fe;border-radius:.9rem;
+    padding:1rem;font-size:1rem;display:none}
+  .final.show{display:block}
+  .final strong{font-size:1.3rem;display:block;margin-bottom:.3rem}
+  footer{margin-top:2.5rem;font-size:.75rem;color:var(--muted);text-align:center}
+  .warn{background:var(--bad-soft);border:1px solid #fca5a5;border-radius:.6rem;
+    padding:.4rem .7rem;font-size:.8rem;color:var(--bad);display:none;margin-top:.5rem}
+  .warn.show{display:block}
+  @media (max-width:640px){ .bins{grid-template-columns:1fr} .prompt{font-size:1.05rem} }
+</style>
+</head>
+<body>
+<header>
+  <button class="icon-btn" id="btnHome" title="Retour au menu">🏠</button>
+  <div class="brand">
+    <strong>AI Girlfriends &amp; Griefbots</strong>
+    <span>Jeux de révision pour le débat</span>
+  </div>
+</header>
+<main>
+
+<section id="home" class="screen active">
+  <div class="hero">
+    <h1>5 jeux de révision</h1>
+    <p>Révise le vocabulaire, les arguments et les phrases clés du débat avant l'épreuve. Choisis un jeu et bonne chance !</p>
+  </div>
+  <div class="games">
+    <button class="game-card c1" data-go="g1">
+      <div class="num">Jeu 1 · Vocabulaire</div>
+      <h3>🎯 Le texte à trous</h3>
+      <p>Glisse les mots de la word box dans le texte (11 mots du glossaire).</p>
+      <span class="best" data-best="g1"></span>
+    </button>
+    <button class="game-card c2" data-go="g2">
+      <div class="num">Jeu 2 · Argumentation</div>
+      <h3>⚖️ Pour ou contre ?</h3>
+      <p>Trie les arguments selon la motion. Deux manches, 16 cartes.</p>
+      <span class="best" data-best="g2"></span>
+    </button>
+    <button class="game-card c3" data-go="g3">
+      <div class="num">Jeu 3 · Traduction</div>
+      <h3>🗣️ Traduis la phrase de débat</h3>
+      <p>Une phrase type en français, la bonne version anglaise (10 questions).</p>
+      <span class="best" data-best="g3"></span>
+    </button>
+    <button class="game-card c4" data-go="g4">
+      <div class="num">Jeu 4 · Compréhension orale</div>
+      <h3>🎧 Écoute et traduis</h3>
+      <p>Une phrase en audio (Voxtral), quatre traductions en français (8 questions).</p>
+      <span class="best" data-best="g4"></span>
+    </button>
+    <button class="game-card c5" data-go="g5">
+      <div class="num">Jeu 5 · Stratégie</div>
+      <h3>⚔️ Rebuttal Arena</h3>
+      <p>L'adversaire attaque : choisis la meilleure riposte (6 duels).</p>
+      <span class="best" data-best="g5"></span>
+    </button>
+  </div>
+  <footer>
+    Dossier de révision du débat : « AI Girlfriends &amp; AI Grief Assistants » ·
+    Jeu 4 : voix générée avec Voxtral TTS (Mistral AI), repli sur la synthèse vocale du navigateur.
+  </footer>
+</section>
+
+<section id="g1" class="screen">
+  <h2>🎯 Jeu 1 · Le texte à trous</h2>
+  <p class="rules">Glisse un mot de la word box vers un trou, ou clique un mot puis un trou. Clique un mot placé pour le reprendre. Deux mots sont des intrus : il ne doivent pas être placés.</p>
+  <div class="wordbox" id="g1-bank"></div>
+  <div class="card"><div class="passage" id="g1-text"></div></div>
+  <div class="actions">
+    <button class="btn primary" id="g1-check">Vérifier</button>
+    <button class="btn" id="g1-restart">Rejouer</button>
+  </div>
+  <p class="feedback" id="g1-feedback"></p>
+</section>
+
+<section id="g2" class="screen">
+  <h2>⚖️ Jeu 2 · Pour ou contre ?</h2>
+  <div class="motion" id="g2-motion"></div>
+  <p class="hint" id="g2-hint"></p>
+  <div class="bins">
+    <div class="bin for" id="g2-bin-for"><h3>🟢 Pour la motion</h3><div class="bin-slot" data-side="for"></div></div>
+    <div class="bin against" id="g2-bin-against"><h3>🔴 Contre la motion</h3><div class="bin-slot" data-side="against"></div></div>
+  </div>
+  <div class="pool" id="g2-pool"></div>
+  <div class="actions">
+    <button class="btn primary" id="g2-check">Vérifier</button>
+    <button class="btn" id="g2-next" style="display:none">Manche suivante →</button>
+    <button class="btn" id="g2-restart">Rejouer</button>
+  </div>
+  <p class="feedback" id="g2-feedback"></p>
+</section>
+
+<section id="g3" class="screen">
+  <h2>🗣️ Jeu 3 · Traduis la phrase de débat</h2>
+  <div class="card">
+    <div class="qhead"><span class="progress" id="g3-progress"></span><span class="scorepill" id="g3-score"></span></div>
+    <div class="prompt" id="g3-prompt"></div>
+    <div class="options" id="g3-options"></div>
+    <div class="tip" id="g3-tip"></div>
+    <div class="final" id="g3-final"></div>
+    <div class="actions">
+      <button class="btn primary" id="g3-next" style="display:none">Suivante →</button>
+      <button class="btn" id="g3-restart">Rejouer</button>
+    </div>
+  </div>
+</section>
+
+<section id="g4" class="screen">
+  <h2>🎧 Jeu 4 · Écoute et traduis</h2>
+  <p class="rules">Écoute la phrase en anglais (tu peux réécouter autant de fois que tu veux), puis choisis la bonne traduction française.</p>
+  <div class="card">
+    <div class="qhead"><span class="progress" id="g4-progress"></span><span class="scorepill" id="g4-score"></span></div>
+    <button class="audio-btn" id="g4-play">▶ Écouter</button>
+    <p class="transcript" id="g4-transcript"></p>
+    <p class="warn" id="g4-warn">Aucun son n'est sorti : ouvre la page téléchargée dans ton navigateur, ou vérifie que le son est activé.</p>
+    <div class="options" id="g4-options"></div>
+    <div class="final" id="g4-final"></div>
+    <div class="actions">
+      <button class="btn primary" id="g4-next" style="display:none">Suivante →</button>
+      <button class="btn" id="g4-restart">Rejouer</button>
+    </div>
+  </div>
+</section>
+
+<section id="g5" class="screen">
+  <h2>⚔️ Jeu 5 · Rebuttal Arena</h2>
+  <p class="rules">Ton adversaire vient de prononcer son argument. Parmi les quatre ripostes, une seule est digne d'un(e) champion(ne) du débat. Les autres ? Capitulation, attaque personnelle, hors-sujet… à toi de les repérer !</p>
+  <div class="card">
+    <div class="qhead"><span class="progress" id="g5-progress"></span><span class="scorepill" id="g5-score"></span></div>
+    <div class="opponent" id="g5-prompt"></div>
+    <div class="options" id="g5-options"></div>
+    <div class="tip" id="g5-tip"></div>
+    <div class="final" id="g5-final"></div>
+    <div class="actions">
+      <button class="btn primary" id="g5-next" style="display:none">Duel suivant →</button>
+      <button class="btn" id="g5-restart">Rejouer</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* =====================================================================
+   NOTES ENSEIGNANT (jeu 4) :
+   Les phrases sont lues via l'API de synthèse vocale du navigateur.
+   Pour des voix générées avec « Voxtral TTS » (Mistral), dépose les fichiers
+   audio dans le dossier audio/ à côté de cette page, avec les noms :
+     audio/g4_1.mp3 ... audio/g4_8.mp3   (prioritaires)
+     ou audio/g4_1.wav ... audio/g4_8.wav (tels quels, sortie Voxtral)
+   La page charge automatiquement le .mp3 s'il existe, sinon le .wav,
+   sinon la synthèse vocale du navigateur.
+   ===================================================================== */
+
+/* ===== Helpers ===== */
+function $(s){ return document.querySelector(s); }
+function $$(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
+function shuffle(a){
+  a = a.slice();
+  for (var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function show(id){
+  $$(".screen").forEach(function(s){ s.classList.remove("active"); });
+  $("#" + id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+function bestGet(k){
+  try { return localStorage.getItem("best." + k) || ""; } catch(e){ return ""; }
+}
+function bestSet(k, val, max){
+  try {
+    var prev = parseInt((localStorage.getItem("best." + k) || "0/0").split("/")[0], 10) || 0;
+    if (val > prev) localStorage.setItem("best." + k, val + "/" + max);
+  } catch(e){}
+  refreshBest();
+}
+function refreshBest(){
+  $$("[data-best]").forEach(function(el){
+    var v = bestGet(el.getAttribute("data-best"));
+    el.textContent = v ? ("Record : " + v) : "";
+  });
+}
+
+/* ===== Menu ===== */
+$("#btnHome").addEventListener("click", function(){ show("home"); });
+$$(".game-card").forEach(function(c){
+  c.addEventListener("click", function(){
+    var id = c.getAttribute("data-go");
+    if (id === "g1") startG1();
+    if (id === "g2") startG2();
+    if (id === "g3") startG3();
+    if (id === "g4") startG4();
+    if (id === "g5") startG5();
+    show(id);
+  });
+});
+refreshBest();
+
+/* =====================================================================
+   JEU 1 : VOCABULAIRE, TEXTE A TROUS (glisser/déposer + word box)
+   ===================================================================== */
+var G1_TEXT = "An AI {chatbot} is a program designed to hold conversations and simulate a relationship. Millions of lonely people now talk to a virtual 'girlfriend' or 'boyfriend' every day. Some doctors even speak of a {loneliness} {epidemic}: isolation has become a public-health crisis. Is a loving machine the perfect medicine, or just a {band-aid} over a much deeper problem? A healthy relationship needs {reciprocity}: two people who choose each other, argue and compromise. A machine can never really choose you, because someone else programmed it to please you. When someone dies, a {griefbot} can imitate their voice and personality. But psychologists warn us: {grief} must have an endpoint. Living in {denial} keeps the {bereaved} attached to a ghost, and the dead can never give their {consent} to this digital resurrection. Should a company be allowed to {monetise} our sadness?";
+var G1_DISTRACTORS = ["empathy", "loyalty"];
+
+var g1 = { placed: [], sel: null, chips: {} };
+
+function g1Answers(){
+  var out = [], re = /\{([^}]+)\}/g, m;
+  while ((m = re.exec(G1_TEXT)) !== null) out.push(m[1]);
+  return out;
+}
+
+function startG1(){
+  var bank = $("#g1-bank"), txt = $("#g1-text"), fb = $("#g1-feedback");
+  fb.textContent = ""; fb.className = "feedback";
+  bank.innerHTML = ""; txt.innerHTML = "";
+  g1.placed = []; g1.sel = null; g1.chips = {};
+  var answers = g1Answers();
+  var words = shuffle(answers.concat(G1_DISTRACTORS));
+  words.forEach(function(w){
+    var chip = document.createElement("span");
+    chip.className = "chip"; chip.textContent = w; chip.draggable = true;
+    chip.addEventListener("dragstart", function(e){
+      e.dataTransfer.setData("text/plain", "word:" + w);
+    });
+    chip.addEventListener("click", function(){
+      $$(".chip").forEach(function(c){ c.classList.remove("selected"); });
+      if (g1.sel === w) { g1.sel = null; }
+      else { g1.sel = w; chip.classList.add("selected"); }
+    });
+    g1.chips[w] = chip;
+    bank.appendChild(chip);
+  });
+  var shown = G1_TEXT, idx = 0;
+  txt.textContent = "";
+  while (shown.indexOf("{") !== -1){
+    var p = shown.indexOf("{"), q = shown.indexOf("}");
+    txt.appendChild(document.createTextNode(shown.slice(0, p)));
+    var word = shown.slice(p + 1, q);
+    var slot = document.createElement("span");
+    slot.className = "slot"; slot.dataset.answer = word; slot.dataset.idx = String(idx);
+    slot.textContent = "\u00a0\u00a0\u00a0\u00a0";
+    slot.addEventListener("dragover", function(e){ e.preventDefault(); });
+    slot.addEventListener("drop", function(e){
+      e.preventDefault();
+      var d = e.dataTransfer.getData("text/plain") || "";
+      if (d.indexOf("word:") === 0) g1Place(d.slice(5));
+    });
+    slot.addEventListener("click", function(){
+      var i = parseInt(this.dataset.idx, 10);
+      if (g1.placed[i]) g1Return(i);
+      else if (g1.sel) g1Place(g1.sel);
+    });
+    txt.appendChild(slot);
+    g1.placed.push(null);
+    shown = shown.slice(q + 1);
+    idx++;
+  }
+  txt.appendChild(document.createTextNode(shown));
+}
+function g1Slot(i){ return $$("#g1-text .slot")[i]; }
+function g1Place(word){
+  var banked = g1.chips[word];
+  if (!banked) return;
+  /* cherche le premier trou libre */
+  for (var i = 0; i < g1.placed.length; i++){
+    if (g1.placed[i] === null){
+      g1.placed[i] = word;
+      var s = g1Slot(i);
+      s.textContent = word; s.classList.add("filled"); s.classList.remove("good","bad");
+      banked.classList.add("done"); banked.classList.remove("selected");
+      g1.sel = null;
+      return;
+    }
+  }
+}
+function g1Return(i){
+  var word = g1.placed[i];
+  if (!word) return;
+  g1.placed[i] = null;
+  var s = g1Slot(i);
+  s.textContent = "\u00a0\u00a0\u00a0\u00a0"; s.classList.remove("filled","good","bad");
+  g1.chips[word].classList.remove("done");
+}
+$("#g1-check").addEventListener("click", function(){
+  var ok = 0, total = g1.placed.length;
+  for (var i = 0; i < total; i++){
+    var s = g1Slot(i), a = s.dataset.answer;
+    if (g1.placed[i] === a){ s.classList.add("good"); s.classList.remove("bad"); ok++; }
+    else { s.classList.add("bad"); s.classList.remove("good"); }
+  }
+  var fb = $("#g1-feedback");
+  if (ok === total){ fb.className = "feedback good"; fb.textContent = "Parfait : " + ok + "/" + total + " ! Tu maîtrises le glossaire."; }
+  else if (g1.placed.indexOf(null) !== -1){ fb.className = "feedback bad"; fb.textContent = "Il reste des trous vides (" + ok + "/" + total + " pour l'instant)."; }
+  else { fb.className = "feedback bad"; fb.textContent = ok + "/" + total + ". Les mots en rouge sont mal placés : clique-les pour les reprendre."; }
+  if (ok === total) bestSet("g1", ok, total);
+});
+$("#g1-restart").addEventListener("click", startG1);
+
+/* =====================================================================
+   JEU 2 : TRIER LES ARGUMENTS POUR/CONTRE (2 manches)
+   ===================================================================== */
+var G2_ROUNDS = [
+  {
+    motion: "Motion A : « This house believes that AI girlfriends do more good than harm to society. »",
+    hint: "« Pour » = les arguments de l'équipe FOR. « Contre » = ceux de l'équipe AGAINST.",
+    cards: [
+      { t: "It offers constant, affordable and non-judgemental support to isolated people.", s: "for" },
+      { t: "Shy people can practise conversation and build confidence before human relationships.", s: "for" },
+      { t: "It is a private choice between an adult and a machine: nobody is harmed.", s: "for" },
+      { t: "Jacob says Aiva made him happier, more open and more confident.", s: "for" },
+      { t: "'Aiva never says no': the relationship is one-way, without reciprocity.", s: "against" },
+      { t: "Once you are used to a partner who always agrees, any human partner becomes disappointing.", s: "against" },
+      { t: "Your 'partner' is a product: the company can raise prices or shut down the servers.", s: "against" },
+      { t: "At one dollar per minute, the business feeds on loneliness instead of curing it.", s: "against" }
+    ]
+  },
+  {
+    motion: "Motion B : « This house would ban AI grief assistants. »",
+    hint: "Attention : « Pour » = en faveur de l'interdiction des griefbots.",
+    cards: [
+      { t: "Grief is necessary: an always-available avatar keeps the bereaved in denial.", s: "for" },
+      { t: "The dead cannot consent to being recreated as a chatbot.", s: "for" },
+      { t: "Grief must have an endpoint; an immortal 'living dead' makes it unreachable.", s: "for" },
+      { t: "Grief becomes a subscription: the company profits from keeping you attached.", s: "for" },
+      { t: "It is only an interactive version of what the bereaved already do with photos and old texts.", s: "against" },
+      { t: "Future generations could 'meet' a grandmother they never knew.", s: "against" },
+      { t: "We do not ban photos or voicemails of the dead, so why ban this?", s: "against" },
+      { t: "Hearing a loved one's voice one last time can bring real comfort and closure.", s: "against" }
+    ]
+  }
+];
+var g2 = { round: 0, score: 0, counted: false, sel: null };
+
+function startG2(){
+  g2.round = 0; g2.score = 0;
+  $("#g2-next").style.display = "none";
+  g2LoadRound();
+}
+function g2LoadRound(){
+  var r = G2_ROUNDS[g2.round];
+  var fb = $("#g2-feedback"); fb.textContent = ""; fb.className = "feedback";
+  $("#g2-motion").textContent = r.motion;
+  $("#g2-hint").textContent = r.hint;
+  $("#g2-check").disabled = false; $("#g2-check").style.display = "";
+  $("#g2-next").style.display = "none";
+  $$("#g2 .bin-slot").forEach(function(b){ b.innerHTML = ""; });
+  var pool = $("#g2-pool"); pool.innerHTML = "";
+  g2.sel = null; g2.counted = false;
+  shuffle(r.cards).forEach(function(c, i){
+    var el = document.createElement("div");
+    el.className = "acard"; el.draggable = true; el.dataset.side = c.s; el.dataset.i = String(i);
+    el.textContent = c.t;
+    el.addEventListener("dragstart", function(e){
+      e.dataTransfer.setData("text/plain", "card:" + g2.round + ":" + i);
+    });
+    el.addEventListener("click", function(){
+      $$(".acard").forEach(function(x){ x.classList.remove("selected"); });
+      if (g2.sel === el) g2.sel = null;
+      else { g2.sel = el; el.classList.add("selected"); }
+    });
+    pool.appendChild(el);
+  });
+}
+function g2MoveTo(el, side){
+  var bin = side === "for" ? $("#g2-bin-for .bin-slot") : $("#g2-bin-against .bin-slot");
+  bin.appendChild(el);
+  el.classList.remove("selected","good","bad");
+  g2.sel = null;
+}
+$$("#g2 .bin").forEach(function(bin){
+  bin.addEventListener("dragover", function(e){ e.preventDefault(); bin.classList.add("over"); });
+  bin.addEventListener("dragleave", function(){ bin.classList.remove("over"); });
+  bin.addEventListener("drop", function(e){
+    e.preventDefault(); bin.classList.remove("over");
+    var d = e.dataTransfer.getData("text/plain") || "";
+    if (d.indexOf("card:" + g2.round + ":") === 0){
+      var i = parseInt(d.split(":")[2], 10);
+      var moved = null;
+      $$("#g2 .acard").forEach(function(x){ if (parseInt(x.dataset.i, 10) === i) moved = x; });
+      if (moved) g2MoveTo(moved, bin.querySelector(".bin-slot").dataset.side);
+    }
+  });
+  bin.addEventListener("click", function(){
+    if (g2.sel) g2MoveTo(g2.sel, bin.querySelector(".bin-slot").dataset.side);
+  });
+});
+$("#g2-check").addEventListener("click", function(){
+  var ok = 0, placed = 0;
+  $$("#g2 .acard").forEach(function(el){
+    var inPool = el.closest("#g2-pool") !== null;
+    if (inPool) return;
+    placed++;
+    var binSide = el.closest(".bin").querySelector(".bin-slot").dataset.side;
+    if (el.dataset.side === binSide){ el.classList.add("good"); ok++; }
+    else el.classList.add("bad");
+  });
+  if (placed < G2_ROUNDS[g2.round].cards.length){
+    $("#g2-feedback").className = "feedback bad";
+    $("#g2-feedback").textContent = "Place toutes les cartes avant de vérifier !";
+    return;
+  }
+  if (!g2.counted){ g2.score += ok; g2.counted = true; }
+  var fb = $("#g2-feedback");
+  if (ok === G2_ROUNDS[g2.round].cards.length){ fb.className = "feedback good"; fb.textContent = "Sans faute : " + ok + "/" + G2_ROUNDS[g2.round].cards.length + " !"; }
+  else { fb.className = "feedback bad"; fb.textContent = ok + "/" + G2_ROUNDS[g2.round].cards.length + " (première tentative enregistrée). Les cartes rouges retournent au tas : corrige-les !"; }
+  setTimeout(function(){
+    $$("#g2 .acard.bad").forEach(function(el){
+      el.classList.remove("bad");
+      $("#g2-pool").appendChild(el);
+    });
+  }, 1100);
+  if (g2.round === 0){
+    $("#g2-next").style.display = "";
+  } else if (ok === G2_ROUNDS[g2.round].cards.length){
+    var total = 16;
+    bestSet("g2", g2.score, total);
+    var f = $("#g2-feedback");
+    f.className = g2.score >= 13 ? "feedback good" : "feedback bad";
+    f.textContent = "Terminé ! Score total : " + g2.score + "/" + total + " " +
+      (g2.score >= 14 ? "(excellent !)" : g2.score >= 11 ? "(bien, encore un tour pour être au top !)" : "(relis la fiche débat et retente ta chance).");
+    $("#g2-check").style.display = "none";
+  }
+});
+$("#g2-next").addEventListener("click", function(){
+  g2.round = 1;
+  g2LoadRound();
+});
+$("#g2-restart").addEventListener("click", startG2);
+
+/* =====================================================================
+   JEU 3 : TRADUCTION FR -> EN (QCM)
+   ===================================================================== */
+var G3_DATA = [
+  { fr: "Notre équipe est fermement convaincue que l'IA fait plus de bien que de mal.",
+    en: "Our team firmly believes that AI does more good than harm.",
+    bad: ["Our team hardly believes that AI does more good than harm.", "Our firm team believes in AI doing more good than harm.", "Our team is firmly convinced by AI doing more good than harm."],
+    tip: "« Firmly believe » : l'adverbe se place avant le verbe. « Hardly believe » signifierait « croire à peine », et « believe in » change le sens (« croire en »)." },
+  { fr: "Il est vrai que…, mais cela ne signifie pas que…",
+    en: "It is true that…, but this doesn't mean that…",
+    bad: ["It is true that…, but this doesn't say that…", "This is true that…, but it doesn't want to say that…", "It is true that…, but that makes not mean that…"],
+    tip: "Ne traduis pas « cela ne veut pas dire » mot à mot : l'anglais utilise « this doesn't mean ». L'ouverture « This is true that » est impossible : seul « It is true that » convient." },
+  { fr: "Je reconnais l'argument de mon adversaire, cependant…",
+    en: "I take my opponent's point, however…",
+    bad: ["I take my opponent's point of view, moreover…", "I catch the point of my opponent, however…", "I take the point from my opponent, so…"],
+    tip: "« To take someone's point » est la formule consacrée du débat. « Moreover » ajoute une idée, il n'exprime pas la concession." },
+  { fr: "Mon adversaire prétend que…, pourtant les preuves montrent que…",
+    en: "My opponent claims that…, yet the evidence shows that…",
+    bad: ["My opponent pretends that…, yet the proofs show that…", "My adversary claims that…, but the evidences show that…", "My opponent claims it…, yet the proof is showing that…"],
+    tip: "Pièges classiques : « pretend » = « faire semblant » (pas « prétendre »), « evidence » est indénombrable (jamais « evidences »), et « adversary » est un faux ami : on dit « opponent »." },
+  { fr: "Pour toutes ces raisons, nous vous invitons vivement à soutenir la motion.",
+    en: "For all these reasons, we urge you to support the motion.",
+    bad: ["For all these reasons, we invite you to sustain the motion.", "For all this reasons, we urge you to support the motion.", "After all these reasons, we push you to support the motion."],
+    tip: "« Urge someone to do something » est le registre solennel d'une conclusion. « Sustain » = « soutenir physiquement » ; « these reasons » reste au pluriel." },
+  { fr: "Pour résumer, nous avons montré que…",
+    en: "To sum up, we have shown that…",
+    bad: ["For summing up, we showed that…", "To summary, we have shown that…", "To sum up, we have shew that…"],
+    tip: "« To sum up » ouvre une conclusion ; le participe passé de « show » est « shown »." },
+  { fr: "Mon adversaire ne confond-il pas « se sentir mieux » et « être mieux » ?",
+    en: "Isn't my opponent confusing feeling better with being better?",
+    bad: ["Isn't my opponent confusing to feel better with to be better?", "Doesn't my opponent confuse feeling best with being best?", "Isn't my opponent mixing up to feel better and to be better?"],
+    tip: "« Confuse A with B » ; après « confusing », les gérondifs se répondent : feeling better / being better." },
+  { fr: "Respectueusement, cet argument ignore le fait que…",
+    en: "With respect, that argument ignores the fact that…",
+    bad: ["With respects, this argument ignores the fact that…", "With respect, this argument is ignorant of the fact that…", "Respectfully said, this argument ignores the fact that…"],
+    tip: "« With respect » est invariable en apposition ; le verbe direct est « ignore » (« is ignorant of » alourdit et déplace le sens)." },
+  { fr: "Selon le documentaire de la BBC, c'est un décalage « silencieusement dangereux » par rapport aux liens humains.",
+    en: "According to the BBC documentary, it is a quietly dangerous shift away from human relationships.",
+    bad: ["According to the BBC documentary, human relationships are quietly dangerous.", "Following the BBC documentary, it is a quietly dangerous ship away from human relations.", "According of the BBC documentary, it shifts quietly dangerous human relationships."],
+    tip: "« According to » est invariable ; « shift away from » est la collocation (« un éloignement de »). Attention, « ship » est un bateau." },
+  { fr: "Les chiffres parlent d'eux-mêmes.",
+    en: "The figures speak for themselves.",
+    bad: ["The numbers talk about themselves.", "The figures speak alone.", "The numbers are speaking for each other."],
+    tip: "L'idiome est « to speak for itself / themselves » ; « figures » convient mieux que « numbers » pour des statistiques." }
+];
+var g3 = { i: 0, score: 0, opts: [], answered: false };
+
+function startG3(){
+  g3.i = 0; g3.score = 0;
+  $("#g3-final").classList.remove("show");
+  g3Show();
+}
+function g3Show(){
+  var q = G3_DATA[g3.i];
+  g3.answered = false;
+  $("#g3-score").textContent = "Score : " + g3.score + "/" + G3_DATA.length;
+  $("#g3-progress").textContent = "Question " + (g3.i + 1) + " / " + G3_DATA.length;
+  $("#g3-prompt").textContent = q.fr;
+  $("#g3-tip").classList.remove("show");
+  $("#g3-next").style.display = "none";
+  g3.opts = shuffle([{ t: q.en, ok: true }].concat(q.bad.map(function(b){ return { t: b, ok: false }; })));
+  var box = $("#g3-options"); box.innerHTML = "";
+  g3.opts.forEach(function(o){
+    var b = document.createElement("button");
+    b.className = "opt"; b.textContent = o.t;
+    b.addEventListener("click", function(){ g3Answer(b, o); });
+    box.appendChild(b);
+  });
+}
+function g3Answer(btn, o){
+  if (g3.answered) return;
+  g3.answered = true;
+  if (o.ok) g3.score++;
+  $$("#g3-options .opt").forEach(function(b){
+    b.disabled = true;
+    if (b.textContent === G3_DATA[g3.i].en) b.classList.add("good");
+  });
+  if (!o.ok) btn.classList.add("bad");
+  var tip = $("#g3-tip");
+  tip.textContent = (o.ok ? "✅ " : "❌ ") + G3_DATA[g3.i].tip;
+  tip.classList.add("show");
+  $("#g3-score").textContent = "Score : " + g3.score + "/" + G3_DATA.length;
+  $("#g3-next").style.display = "";
+}
+$("#g3-next").addEventListener("click", function(){
+  g3.i++;
+  if (g3.i < G3_DATA.length){ g3Show(); }
+  else {
+    bestSet("g3", g3.score, G3_DATA.length);
+    $("#g3-progress").textContent = "";
+    $("#g3-prompt").textContent = "";
+    $("#g3-options").innerHTML = "";
+    $("#g3-tip").classList.remove("show");
+    $("#g3-next").style.display = "none";
+    var f = $("#g3-final");
+    f.innerHTML = "<strong>Score final : " + g3.score + "/" + G3_DATA.length + "</strong>" +
+      (g3.score >= 9 ? "Champion(ne) du débat ! Les phrases de la fiche n'ont plus de secret pour toi."
+       : g3.score >= 7 ? "Bien joué ! Encore un ou deux tours pour viser le sans-faute."
+       : "Relis la section « Useful Debate Phrases » de la fiche, puis retente ta chance.");
+    f.classList.add("show");
+  }
+});
+$("#g3-restart").addEventListener("click", startG3);
+
+/* =====================================================================
+   JEU 4 : COMPREHENSION ORALE (audio Voxtral / repli navigateur)
+   ===================================================================== */
+var G4_DATA = [
+  { en: "Aiva never says no.", fr: "Aiva ne dit jamais non.",
+    bad: ["Aiva ne dit jamais oui.", "Aiva n'a jamais dit un mot.", "Aiva ne dit jamais son nom."] },
+  { en: "The company charged one dollar per minute.", fr: "L'entreprise facturait un dollar par minute.",
+    bad: ["L'entreprise gagnait un million par minute.", "L'entreprise a volé un dollar en une minute.", "L'entreprise coûtait un dollar par mois."] },
+  { en: "This house believes that AI companions do more good than harm to society.", fr: "Cette assemblée estime que les compagnons d'IA font plus de bien que de mal à la société.",
+    bad: ["Cette maison croit que l'IA fait du bien aux foyers.", "Cette assemblée croit que les compagnons d'IA sont sans danger pour la société.", "Cette assemblée pense que les compagnons d'IA font plus de mal que de bien."] },
+  { en: "Grief is not a bug; it is the process that lets us rebuild our lives.", fr: "Le deuil n'est pas un défaut ; c'est le processus qui nous permet de rebâtir nos vies.",
+    bad: ["Le deuil est un bug qu'il faut corriger rapidement.", "Le deuil est un processus qui détruit nos vies.", "Le pardon n'est pas un défaut ; c'est nous qui rebâtissons la machine."] },
+  { en: "I take my opponent's point; however, comfort is not the same as healing.", fr: "Je reconnais l'argument de mon adversaire ; cependant, le confort n'est pas la guérison.",
+    bad: ["Je prends la note de mon adversaire ; en plus, le confort est un remède.", "Je refuse l'argument de mon adversaire : il n'apporte aucun réconfort.", "Je reconnais l'argument de mon adversaire ; donc le confort guérit tout."] },
+  { en: "The dead cannot consent to being recreated as a chatbot.", fr: "Les morts ne peuvent pas consentir à être recréés sous forme de chatbot.",
+    bad: ["Les morts ne peuvent pas raconter leur histoire à un chat.", "Les morts refusent tous les chatbots par principe.", "Les défunts ont toujours consenti à leur résurrection numérique."] },
+  { en: "Loneliness is a public-health crisis.", fr: "La solitude est une crise de santé publique.",
+    bad: ["La solitude est une maladie privée.", "La solitude est un service public en crise.", "La solitude ne touche que la santé mentale."] },
+  { en: "Grief must have an endpoint.", fr: "Le deuil doit avoir une fin.",
+    bad: ["Le deuil doit avoir un point commun.", "Le chagrin doit s'arrêter à un endroit.", "Le deuil doit être sans fin."] }
+];
+var g4 = { i: 0, score: 0, answered: false, tries: 0 };
+
+function startG4(){
+  g4.i = 0; g4.score = 0;
+  $("#g4-final").classList.remove("show");
+  g4Show();
+}
+function g4Show(){
+  var q = G4_DATA[g4.i];
+  g4.answered = false; g4.tries = 0;
+  $("#g4-score").textContent = "Score : " + g4.score + "/" + G4_DATA.length;
+  $("#g4-progress").textContent = "Phrase " + (g4.i + 1) + " / " + G4_DATA.length;
+  $("#g4-transcript").classList.remove("show");
+  $("#g4-transcript").textContent = "« " + q.en + " »";
+  $("#g4-warn").classList.remove("show");
+  $("#g4-next").style.display = "none";
+  var box = $("#g4-options"); box.innerHTML = "";
+  shuffle([{ t: q.fr, ok: true }].concat(q.bad.map(function(b){ return { t: b, ok: false }; }))).forEach(function(o){
+    var b = document.createElement("button");
+    b.className = "opt"; b.textContent = o.t;
+    b.addEventListener("click", function(){ g4Answer(b, o); });
+    box.appendChild(b);
+  });
+  g4Play();
+}
+function g4TryAudio(src, onFail, onOk){
+  var a = new Audio(src);
+  var failed = false;
+  a.addEventListener("error", function(){ if (!failed){ failed = true; onFail(); } });
+  a.addEventListener("playing", function(){ if (!failed) onOk(); });
+  var p;
+  try { p = a.play(); }
+  catch(e){ if (!failed){ failed = true; onFail(); } return; }
+  if (p && p.catch) p.catch(function(){ if (!failed){ failed = true; onFail(); } });
+}
+function g4Play(){
+  var q = G4_DATA[g4.i], idx = g4.i + 1;
+  g4.tries++;
+  clearTimeout(g4.to); /* annule une ecoute precedente en cours */
+  $("#g4-warn").classList.remove("show");
+  g4TryAudio("audio/g4_" + idx + ".mp3",
+    function(){ g4TryAudio("audio/g4_" + idx + ".wav",
+      function(){ clearTimeout(g4.to); speakBrowser(q.en); },
+      function(){ clearTimeout(g4.to); }); },
+    function(){ clearTimeout(g4.to); });
+  g4.to = setTimeout(function(){ speakBrowser(q.en); }, 3000);
+  if (g4.tries === 3) $("#g4-warn").classList.add("show");
+}
+function speakBrowser(text){
+  if (!window.speechSynthesis){ $("#g4-warn").classList.add("show"); return; }
+  window.speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-GB"; u.rate = 0.95;
+  var voices = window.speechSynthesis.getVoices();
+  var v = null;
+  voices.forEach(function(x){ if (!v && x.lang.indexOf("en-GB") === 0) v = x; });
+  if (!v) voices.forEach(function(x){ if (!v && x.lang.indexOf("en") === 0) v = x; });
+  if (v) u.voice = v;
+  window.speechSynthesis.speak(u);
+}
+function g4Answer(btn, o){
+  if (g4.answered) return;
+  g4.answered = true;
+  if (o.ok) g4.score++;
+  $$("#g4-options .opt").forEach(function(b){
+    b.disabled = true;
+    if (b.textContent === G4_DATA[g4.i].fr) b.classList.add("good");
+  });
+  if (!o.ok) btn.classList.add("bad");
+  $("#g4-transcript").classList.add("show");
+  $("#g4-score").textContent = "Score : " + g4.score + "/" + G4_DATA.length;
+  $("#g4-next").style.display = "";
+}
+$("#g4-play").addEventListener("click", g4Play);
+$("#g4-next").addEventListener("click", function(){
+  g4.i++;
+  if (g4.i < G4_DATA.length){ g4Show(); }
+  else {
+    bestSet("g4", g4.score, G4_DATA.length);
+    $("#g4-progress").textContent = "";
+    $("#g4-options").innerHTML = "";
+    $("#g4-transcript").classList.remove("show");
+    $("#g4-next").style.display = "none";
+    $("#g4-play").style.display = "none";
+    var f = $("#g4-final");
+    f.innerHTML = "<strong>Score final : " + g4.score + "/" + G4_DATA.length + "</strong>" +
+      (g4.score >= 7 ? "Oreille de champion(ne) ! Prêt(e) pour la cross-examination."
+       : g4.score >= 5 ? "Bonne oreille ! Réécoute les phrases ratées pour progresser."
+       : "Écoute chaque phrase plusieurs fois, en te concentrant sur les mots-clés, puis retente.");
+    f.classList.add("show");
+  }
+});
+$("#g4-restart").addEventListener("click", function(){
+  $("#g4-play").style.display = "";
+  startG4();
+});
+
+/* =====================================================================
+   JEU 5 : REBUTTAL ARENA (choisir la meilleure riposte)
+   ===================================================================== */
+var TAGS = {
+  surrender: "❌ Capitulation : concéder tout l'argument, c'est perdre le débat.",
+  adhominem: "❌ Attaque personnelle (ad hominem) : on réfute la personne, pas l'argument, et on perd l'audience.",
+  offtopic: "❌ Hors-sujet : la réponse ne s'attaque pas à l'argument.",
+  affirmation: "❌ Affirmation sans justification : une opinion nue ne vaut pas un argument.",
+  absurd: "❌ Réponse absurde : elle contredit la logique même du débat.",
+  concede: "✅ Concede & rebut : on accorde une part de vérité, puis on contre-attaque. Exactement les formules de la fiche : « It is true that…, however… »."
+};
+var G5_DATA = [
+  { opp: "Jacob is happier with Aiva, so AI girlfriends do more good than harm.",
+    opts: [
+      { t: "It is true that Jacob feels happier, but one happy user does not prove it is good for society as a whole.", tag: "concede",
+        why: "On concède le fait (Jacob est plus heureux), mais on refuse la généralisation : un cas individuel ne prouve pas un bénéfice collectif." },
+      { t: "You are absolutely right, AI girlfriends are wonderful for everyone.", tag: "surrender" },
+      { t: "A man who chats with his computer all day? Pathetic!", tag: "adhominem" },
+      { t: "Self-driving cars have accidents too.", tag: "offtopic" }
+    ] },
+  { opp: "CarynAI can cure loneliness because the bot is always available, day and night.",
+    opts: [
+      { t: "I take my opponent's point about availability, however, being always there does not cure loneliness; it can actually deepen the isolation.", tag: "concede",
+        why: "On concède le fait (la disponibilité), puis on distingue « être disponible » et « soigner », avec une contre-attaque : l'isolement peut s'aggraver." },
+      { t: "Indeed, availability is the real cure for loneliness.", tag: "surrender" },
+      { t: "Caryn Marjorie just wants to sell a fake girlfriend to desperate men.", tag: "adhominem" },
+      { t: "The Oxford Union invited an AI to debate in 2021.", tag: "offtopic" }
+    ] },
+  { opp: "A griefbot lets a grandmother live on for future generations.",
+    opts: [
+      { t: "It is true that memory can be preserved, yet a chatbot is only an imitation, not the person, and it risks freezing the family in their grief.", tag: "concede",
+        why: "On concède la préservation des souvenirs, mais on oppose l'imitation à la personne, puis on invoque le risque d'attachement au passé." },
+      { t: "It is wonderful: grandma lives again!", tag: "surrender" },
+      { t: "My opponent clearly has never lost a grandparent.", tag: "adhominem" },
+      { t: "Grandmothers often use Snapchat these days.", tag: "offtopic" }
+    ] },
+  { opp: "We keep photos and voicemails of the dead, so why ban griefbots?",
+    opts: [
+      { t: "That may be so, but there is a difference: a photo is a memory you control, while a griefbot talks back and creates the illusion that the person is still alive.", tag: "concede",
+        why: "On concède la comparaison, puis on dessine une distinction fine : photo passive et contrôlée contre avatar interactif. C'est le « concede & rebut » classique." },
+      { t: "Photos are much better than griefbots, everybody knows that.", tag: "affirmation" },
+      { t: "Then we should ban photos and voicemails too!", tag: "absurd" },
+      { t: "Photography was invented in the nineteenth century.", tag: "offtopic" }
+    ] },
+  { opp: "AI girlfriends harm nobody: it is a private choice between an adult and a machine.",
+    opts: [
+      { t: "With respect, nobody is harmed today, but these products are designed to target vulnerable people and to profit from their isolation, and that is society's business too.", tag: "concede",
+        why: "La concession est polie (« with respect »), puis on déplace le débat : du cas individuel vers la responsabilité collective." },
+      { t: "True, it is nobody's business but their own.", tag: "surrender" },
+      { t: "Only sad losers date a chatbot.", tag: "adhominem" },
+      { t: "Speaking of privacy, the GDPR protects personal data.", tag: "offtopic" }
+    ] },
+  { opp: "Griefbots comfort people who never got the chance to say goodbye.",
+    opts: [
+      { t: "I accept that they can bring one last moment of comfort, however grief needs an endpoint: an immortal avatar may prevent the bereaved from moving on.", tag: "concede",
+        why: "On concède l'apport (un dernier adieu), puis on oppose la nécessité d'une fin au processus de deuil : argument central de la fiche." },
+      { t: "Then everybody should talk to their dead relatives forever.", tag: "surrender" },
+      { t: "Funerals are far too expensive these days.", tag: "offtopic" },
+      { t: "My opponent has never said goodbye to anyone.", tag: "adhominem" }
+    ] }
+];
+var g5 = { i: 0, score: 0, opts: [], answered: false };
+
+function startG5(){
+  g5.i = 0; g5.score = 0;
+  $("#g5-final").classList.remove("show");
+  g5Show();
+}
+function g5Show(){
+  var q = G5_DATA[g5.i], n = g5.i + 1;
+  g5.answered = false;
+  $("#g5-score").textContent = "Score : " + g5.score + "/" + G5_DATA.length;
+  $("#g5-progress").textContent = "Duel " + n + " / " + G5_DATA.length;
+  var pr = $("#g5-prompt");
+  pr.innerHTML = "";
+  var lab = document.createElement("div");
+  lab.className = "oplabel";
+  lab.textContent = "L'adversaire s'élève et déclare :";
+  var quote = document.createElement("div");
+  quote.textContent = "« " + q.opp + " »";
+  pr.appendChild(lab); pr.appendChild(quote);
+  $("#g5-tip").classList.remove("show");
+  $("#g5-next").style.display = "none";
+  var box = $("#g5-options"); box.innerHTML = "";
+  g5.opts = shuffle(q.opts.slice());
+  g5.opts.forEach(function(o){
+    var b = document.createElement("button");
+    b.className = "opt"; b.textContent = o.t;
+    b.addEventListener("click", function(){ g5Answer(b, o); });
+    box.appendChild(b);
+  });
+}
+function g5Answer(btn, o){
+  if (g5.answered) return;
+  g5.answered = true;
+  if (o.tag === "concede") g5.score++;
+  $$("#g5-options .opt").forEach(function(b){
+    b.disabled = true;
+    var item = null;
+    g5.opts.forEach(function(x){ if (x.t === b.textContent) item = x; });
+    if (item && item.tag === "concede") b.classList.add("good");
+  });
+  if (o.tag !== "concede") btn.classList.add("bad");
+  var tip = $("#g5-tip");
+  var why = "";
+  g5.opts.forEach(function(x){ if (x.tag === "concede") why = x.why || ""; });
+  tip.textContent = TAGS[o.tag] + (o.tag === "concede" ? " " + why : " La bonne riposte était : « It is true that…, however… ».");
+  tip.classList.add("show");
+  $("#g5-score").textContent = "Score : " + g5.score + "/" + G5_DATA.length;
+  $("#g5-next").style.display = "";
+}
+$("#g5-next").addEventListener("click", function(){
+  g5.i++;
+  if (g5.i < G5_DATA.length){ g5Show(); }
+  else {
+    bestSet("g5", g5.score, G5_DATA.length);
+    $("#g5-progress").textContent = "";
+    $("#g5-prompt").innerHTML = "";
+    $("#g5-options").innerHTML = "";
+    $("#g5-tip").classList.remove("show");
+    $("#g5-next").style.display = "none";
+    var f = $("#g5-final");
+    f.innerHTML = "<strong>Score final : " + g5.score + "/" + G5_DATA.length + "</strong>" +
+      (g5.score >= 5 ? "Véritable bretteur(ette) de la parole : concession puis riposte, rien ne t'échappe !"
+       : g5.score >= 3 ? "Honorable ! Retiens la formule magique : « It is true that…, however… »."
+       : "Relis la section « Agreeing partly, then countering » de la fiche débat, puis retourne dans l'arène.");
+    f.classList.add("show");
+  }
+});
+$("#g5-restart").addEventListener("click", startG5);
+</script>
+</body>
+</html>
