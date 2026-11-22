@@ -234,7 +234,7 @@
 
 <section id="g5" class="screen">
   <h2>⚔️ Jeu 5 · Rebuttal Arena <span class="roundtag" id="g5-round"></span></h2>
-  <p class="rules">Ton adversaire vient de prononcer son argument. Parmi les quatre ripostes, une seule est digne d'un(e) champion(ne) du débat. Les autres ? Capitulation, attaque personnelle, hors-sujet… à toi de les repérer !</p>
+  <p class="rules" id="g5-rules">Ton adversaire vient de prononcer son argument. Parmi les quatre ripostes, une seule est digne d'un(e) champion(ne) du débat. Les autres ? Capitulation, attaque personnelle, hors-sujet… à toi de les repérer !</p>
   <div class="card" id="g5a">
     <div class="qhead"><span class="progress" id="g5-progress"></span><span class="scorepill" id="g5-score"></span></div>
     <div class="opponent" id="g5-prompt"></div>
@@ -250,7 +250,6 @@
 
   <div class="card" id="g5b" style="display:none">
     <div class="qhead"><span class="progress">Manche 2 · Pourquoi ces ripostes échouent-elles ?</span><span class="scorepill" id="g5b-score"></span></div>
-    <p class="rules">Range chaque riposte dans la bonne bouteille : pourquoi échoue-t-elle ? 🏳 Capitulation (on abandonne l'argument), 🗯 attaque ad hominem (on frappe la personne), 🚪 hors-sujet (on parle d'autre chose).</p>
     <div class="bins three">
       <div class="bin sur"><h3>🏳 Capitulation</h3><div class="bin-slot" data-side="surrender"></div></div>
       <div class="bin adh"><h3>🗯 Attaque ad hominem</h3><div class="bin-slot" data-side="adhominem"></div></div>
@@ -852,6 +851,7 @@ function startG5(){
   $("#g5b").style.display = "none";
   $("#g5-next2").style.display = "none";
   $("#g5-round").textContent = "Arène · 1/2";
+  $("#g5-rules").textContent = G5_RULES_ARENA;
   g5.i = 0; g5.score = 0;
   $("#g5-final").classList.remove("show");
   g5Show();
@@ -924,14 +924,25 @@ $("#g5-restart").addEventListener("click", startG5);
    JEU 5, MANCHE 2 : TRI DES RIPOSTES RATEES
    (cartes reprises de l'arene, a trier : capitulation / ad hominem / hors-sujet)
    ===================================================================== */
-var G5_SORT = [
-  { t: "You are absolutely right, AI girlfriends are wonderful for everyone.", tag: "surrender" },
-  { t: "It is wonderful: grandma lives again!", tag: "surrender" },
-  { t: "A man who chats with his computer all day? Pathetic!", tag: "adhominem" },
-  { t: "My opponent has never said goodbye to anyone.", tag: "adhominem" },
-  { t: "Grandmothers often use Snapchat these days.", tag: "offtopic" },
-  { t: "Speaking of privacy, the GDPR protects personal data.", tag: "offtopic" }
-];
+/* ripostes reprises de l'arene manche 1 ; les deux reponses du duel 4
+   qui ne font partie d'aucune des trois categories (affirmation nue,
+   reponse absurde) sont reecrites pour la manche 2 uniquement */
+var G5_SORT_SUBS = {
+  "Photos are much better than griefbots, everybody knows that.":
+    { t: "You are right, keeping griefbots is exactly the same as keeping family photos.", tag: "surrender" },
+  "Then we should ban photos and voicemails too!":
+    { t: "My opponent only defends griefbots because he owns shares in a chatbot company.", tag: "adhominem" }
+};
+var G5_SORT = [];
+G5_DATA.forEach(function(d){
+  d.opts.forEach(function(o){
+    if (o.tag === "concede") return;
+    var s = G5_SORT_SUBS[o.t];
+    G5_SORT.push(s ? { t: s.t, tag: s.tag } : { t: o.t, tag: o.tag });
+  });
+});
+var G5_RULES_ARENA = "Ton adversaire vient de prononcer son argument. Parmi les quatre ripostes, une seule est digne d'un(e) champion(ne) du débat. Les autres ? Capitulation, attaque personnelle, hors-sujet… à toi de les repérer !";
+var G5_RULES_SORT = "Range chaque riposte dans la bonne catégorie : 🏳 Capitulation, 🗯 attaque ad hominem, 🚪 hors-sujet.";
 var g5b = { sel: null, score: 0, counted: false };
 function g5bMove(el, side){
   $$("#g5b .bin-slot").forEach(function(s){
@@ -942,6 +953,7 @@ function g5bMove(el, side){
 }
 function startG5Sort(){
   $("#g5-round").textContent = "Tri · 2/2";
+  $("#g5-rules").textContent = G5_RULES_SORT;
   var fb = $("#g5b-feedback"); fb.textContent = ""; fb.className = "feedback";
   $("#g5b-score").textContent = "Score : 0/" + G5_SORT.length;
   $("#g5b-check").style.display = ""; $("#g5b-check").disabled = false;
@@ -993,7 +1005,7 @@ $("#g5b-check").addEventListener("click", function(){
   if (ok === G5_SORT.length){
     fb.className = "feedback good";
     fb.textContent = "Sans faute : " + ok + "/" + G5_SORT.length + " ! Cumul du jeu 5 : " +
-      (g5.score + g5b.score) + "/12 (arène + tri, première tentative du tri enregistrée).";
+      (g5.score + g5b.score) + "/" + (G5_DATA.length + G5_SORT.length) + " (arène + tri, première tentative du tri enregistrée).";
     $("#g5b-check").style.display = "none";
     $("#g5b-back").style.display = "";
   } else {
