@@ -81,6 +81,13 @@
   .acard.selected{outline:3px solid #fcd34d;outline-offset:1px}
   .acard.good{background:var(--good-soft);border-color:var(--good)}
   .acard.bad{background:var(--bad-soft);border-color:var(--bad)}
+  .acard5{border-left-color:var(--g5)}
+  .bins.three{grid-template-columns:1fr 1fr 1fr}
+  .bin.sur{border-color:#94a3b8}
+  .bin.adh{border-color:var(--g5)}
+  .bin.off{border-color:#d97706}
+  .roundtag{font-size:.72rem;font-weight:700;color:var(--primary);background:#fff;
+    border:1px solid var(--line);border-radius:999px;padding:.12rem .55rem;vertical-align:middle;white-space:nowrap}
   .qhead{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap}
   .scorepill{font-size:.8rem;color:var(--muted);white-space:nowrap}
   .prompt{font-size:1.15rem;margin:.75rem 0;padding:1rem;background:var(--primary-soft);
@@ -152,7 +159,7 @@
     <button class="game-card c4" data-go="g4">
       <div class="num">Jeu 4 · Compréhension orale</div>
       <h3>🎧 Écoute et traduis</h3>
-      <p>Une phrase en audio (Voxtral), quatre traductions en français (8 questions).</p>
+      <p>Une phrase en audio, quatre traductions en français (8 questions).</p>
       <span class="best" data-best="g4"></span>
     </button>
     <button class="game-card c5" data-go="g5">
@@ -162,15 +169,11 @@
       <span class="best" data-best="g5"></span>
     </button>
   </div>
-  <footer>
-    Dossier de révision du débat : « AI Girlfriends &amp; AI Grief Assistants » ·
-    Jeu 4 : voix générée avec Voxtral TTS (Mistral AI), repli sur la synthèse vocale du navigateur.
-  </footer>
 </section>
 
 <section id="g1" class="screen">
   <h2>🎯 Jeu 1 · Le texte à trous</h2>
-  <p class="rules">Glisse un mot de la word box vers un trou, ou clique un mot puis un trou. Clique un mot placé pour le reprendre. Deux mots sont des intrus : il ne doivent pas être placés.</p>
+  <p class="rules">Glisse un mot de la word box vers un trou, ou clique un mot puis un trou. Clique un mot placé pour le reprendre. Deux mots sont des intrus : ils ne doivent pas être placés.</p>
   <div class="wordbox" id="g1-bank"></div>
   <div class="card"><div class="passage" id="g1-text"></div></div>
   <div class="actions">
@@ -181,7 +184,7 @@
 </section>
 
 <section id="g2" class="screen">
-  <h2>⚖️ Jeu 2 · Pour ou contre ?</h2>
+  <h2>⚖️ Jeu 2 · Pour ou contre ? <span class="roundtag" id="g2-round"></span></h2>
   <div class="motion" id="g2-motion"></div>
   <p class="hint" id="g2-hint"></p>
   <div class="bins">
@@ -230,9 +233,9 @@
 </section>
 
 <section id="g5" class="screen">
-  <h2>⚔️ Jeu 5 · Rebuttal Arena</h2>
+  <h2>⚔️ Jeu 5 · Rebuttal Arena <span class="roundtag" id="g5-round"></span></h2>
   <p class="rules">Ton adversaire vient de prononcer son argument. Parmi les quatre ripostes, une seule est digne d'un(e) champion(ne) du débat. Les autres ? Capitulation, attaque personnelle, hors-sujet… à toi de les repérer !</p>
-  <div class="card">
+  <div class="card" id="g5a">
     <div class="qhead"><span class="progress" id="g5-progress"></span><span class="scorepill" id="g5-score"></span></div>
     <div class="opponent" id="g5-prompt"></div>
     <div class="options" id="g5-options"></div>
@@ -240,8 +243,26 @@
     <div class="final" id="g5-final"></div>
     <div class="actions">
       <button class="btn primary" id="g5-next" style="display:none">Duel suivant →</button>
+      <button class="btn" id="g5-next2" style="display:none">Manche 2 : tri des ripostes →</button>
       <button class="btn" id="g5-restart">Rejouer</button>
     </div>
+  </div>
+
+  <div class="card" id="g5b" style="display:none">
+    <div class="qhead"><span class="progress">Manche 2 · Pourquoi ces ripostes échouent-elles ?</span><span class="scorepill" id="g5b-score"></span></div>
+    <p class="rules">Range chaque riposte dans la bonne bouteille : pourquoi échoue-t-elle ? 🏳 Capitulation (on abandonne l'argument), 🗯 attaque ad hominem (on frappe la personne), 🚪 hors-sujet (on parle d'autre chose).</p>
+    <div class="bins three">
+      <div class="bin sur"><h3>🏳 Capitulation</h3><div class="bin-slot" data-side="surrender"></div></div>
+      <div class="bin adh"><h3>🗯 Attaque ad hominem</h3><div class="bin-slot" data-side="adhominem"></div></div>
+      <div class="bin off"><h3>🚪 Hors-sujet</h3><div class="bin-slot" data-side="offtopic"></div></div>
+    </div>
+    <div class="pool" id="g5b-pool"></div>
+    <div class="actions">
+      <button class="btn primary" id="g5b-check">Vérifier</button>
+      <button class="btn" id="g5b-restart">Refaire le tri</button>
+      <button class="btn" id="g5b-back" style="display:none">Rejouer le jeu 5</button>
+    </div>
+    <p class="feedback" id="g5b-feedback"></p>
   </div>
 </section>
 
@@ -446,10 +467,12 @@ var g2 = { round: 0, score: 0, counted: false, sel: null };
 function startG2(){
   g2.round = 0; g2.score = 0;
   $("#g2-next").style.display = "none";
+  $("#g2-check").style.display = "";
   g2LoadRound();
 }
 function g2LoadRound(){
   var r = G2_ROUNDS[g2.round];
+  $("#g2-round").textContent = "Manche " + (g2.round + 1) + "/2";
   var fb = $("#g2-feedback"); fb.textContent = ""; fb.className = "feedback";
   $("#g2-motion").textContent = r.motion;
   $("#g2-hint").textContent = r.hint;
@@ -825,6 +848,10 @@ var G5_DATA = [
 var g5 = { i: 0, score: 0, opts: [], answered: false };
 
 function startG5(){
+  $("#g5a").style.display = "";
+  $("#g5b").style.display = "none";
+  $("#g5-next2").style.display = "none";
+  $("#g5-round").textContent = "Arène · 1/2";
   g5.i = 0; g5.score = 0;
   $("#g5-final").classList.remove("show");
   g5Show();
@@ -888,9 +915,105 @@ $("#g5-next").addEventListener("click", function(){
        : g5.score >= 3 ? "Honorable ! Retiens la formule magique : « It is true that…, however… »."
        : "Relis la section « Agreeing partly, then countering » de la fiche débat, puis retourne dans l'arène.");
     f.classList.add("show");
+    $("#g5-next2").style.display = "";
   }
 });
 $("#g5-restart").addEventListener("click", startG5);
+
+/* =====================================================================
+   JEU 5, MANCHE 2 : TRI DES RIPOSTES RATEES
+   (cartes reprises de l'arene, a trier : capitulation / ad hominem / hors-sujet)
+   ===================================================================== */
+var G5_SORT = [
+  { t: "You are absolutely right, AI girlfriends are wonderful for everyone.", tag: "surrender" },
+  { t: "It is wonderful: grandma lives again!", tag: "surrender" },
+  { t: "A man who chats with his computer all day? Pathetic!", tag: "adhominem" },
+  { t: "My opponent has never said goodbye to anyone.", tag: "adhominem" },
+  { t: "Grandmothers often use Snapchat these days.", tag: "offtopic" },
+  { t: "Speaking of privacy, the GDPR protects personal data.", tag: "offtopic" }
+];
+var g5b = { sel: null, score: 0, counted: false };
+function g5bMove(el, side){
+  $$("#g5b .bin-slot").forEach(function(s){
+    if (s.dataset.side === side) s.appendChild(el);
+  });
+  el.classList.remove("selected", "good", "bad");
+  g5b.sel = null;
+}
+function startG5Sort(){
+  $("#g5-round").textContent = "Tri · 2/2";
+  var fb = $("#g5b-feedback"); fb.textContent = ""; fb.className = "feedback";
+  $("#g5b-score").textContent = "Score : 0/" + G5_SORT.length;
+  $("#g5b-check").style.display = ""; $("#g5b-check").disabled = false;
+  $("#g5b-back").style.display = "none";
+  $$("#g5b .bin-slot").forEach(function(s){ s.innerHTML = ""; });
+  var pool = $("#g5b-pool"); pool.innerHTML = "";
+  g5b.sel = null; g5b.score = 0; g5b.counted = false;
+  shuffle(G5_SORT.slice()).forEach(function(c){
+    var el = document.createElement("div");
+    el.className = "acard acard5"; el.draggable = true; el.dataset.side = c.tag;
+    el.textContent = c.t;
+    el.addEventListener("dragstart", function(){ g5b.sel = el; });
+    el.addEventListener("click", function(){
+      $$("#g5b .acard").forEach(function(x){ x.classList.remove("selected"); });
+      if (g5b.sel === el) g5b.sel = null;
+      else { g5b.sel = el; el.classList.add("selected"); }
+    });
+    pool.appendChild(el);
+  });
+}
+$$("#g5b .bin").forEach(function(bin){
+  bin.addEventListener("dragover", function(e){ e.preventDefault(); bin.classList.add("over"); });
+  bin.addEventListener("dragleave", function(){ bin.classList.remove("over"); });
+  bin.addEventListener("drop", function(e){
+    e.preventDefault(); bin.classList.remove("over");
+    if (g5b.sel) g5bMove(g5b.sel, bin.querySelector(".bin-slot").dataset.side);
+  });
+  bin.addEventListener("click", function(){
+    if (g5b.sel) g5bMove(g5b.sel, bin.querySelector(".bin-slot").dataset.side);
+  });
+});
+$("#g5b-check").addEventListener("click", function(){
+  var ok = 0, placed = 0;
+  $$("#g5b .acard").forEach(function(el){
+    if (el.closest("#g5b-pool") !== null) return;
+    placed++;
+    var side = el.closest(".bin").querySelector(".bin-slot").dataset.side;
+    if (el.dataset.side === side){ el.classList.add("good"); ok++; }
+    else el.classList.add("bad");
+  });
+  if (placed < G5_SORT.length){
+    $("#g5b-feedback").className = "feedback bad";
+    $("#g5b-feedback").textContent = "Range toutes les ripostes avant de vérifier !";
+    return;
+  }
+  if (!g5b.counted){ g5b.score += ok; g5b.counted = true; }
+  $("#g5b-score").textContent = "Score : " + g5b.score + "/" + G5_SORT.length;
+  var fb = $("#g5b-feedback");
+  if (ok === G5_SORT.length){
+    fb.className = "feedback good";
+    fb.textContent = "Sans faute : " + ok + "/" + G5_SORT.length + " ! Cumul du jeu 5 : " +
+      (g5.score + g5b.score) + "/12 (arène + tri, première tentative du tri enregistrée).";
+    $("#g5b-check").style.display = "none";
+    $("#g5b-back").style.display = "";
+  } else {
+    fb.className = "feedback bad";
+    fb.textContent = ok + "/" + G5_SORT.length + " (première tentative enregistrée). Les ripostes rouges retournent au tas : corrige-les !";
+  }
+  setTimeout(function(){
+    $$("#g5b .acard.bad").forEach(function(el){
+      el.classList.remove("bad");
+      $("#g5b-pool").appendChild(el);
+    });
+  }, 1100);
+});
+$("#g5-next2").addEventListener("click", function(){
+  $("#g5a").style.display = "none";
+  startG5Sort();
+  $("#g5b").style.display = "";
+});
+$("#g5b-restart").addEventListener("click", startG5Sort);
+$("#g5b-back").addEventListener("click", startG5);
 </script>
 </body>
 </html>
