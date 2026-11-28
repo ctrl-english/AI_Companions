@@ -305,6 +305,8 @@
    audio dans le dossier audio/ à côté de cette page, avec les noms :
      audio/g4_1.mp3 ... audio/g4_8.mp3   (prioritaires)
      ou audio/g4_1.wav ... audio/g4_8.wav (tels quels, sortie Voxtral)
+   Jeu 6 (dictée éclair) : mêmes règles avec audio/g6_1.mp3 ... audio/g6_8.mp3
+   ou audio/g6_1.wav ... audio/g6_8.wav (phrases différentes du jeu 4).
    La page charge automatiquement le .mp3 s'il existe, sinon le .wav,
    sinon la synthèse vocale du navigateur.
    ===================================================================== */
@@ -1058,8 +1060,18 @@ $("#g5b-restart").addEventListener("click", startG5Sort);
 $("#g5b-back").addEventListener("click", startG5);
 
 /* =====================================================================
-   JEU 6 : DICTEE ECLAIR (memes phrases audio que le jeu 4)
+   JEU 6 : DICTEE ECLAIR (phrases dediees, audio audio/g6_1..g6_8)
    ===================================================================== */
+var G6_DATA = [
+  { en: "A chatbot can simulate affection, but it cannot feel anything." },
+  { en: "Some companies monetise the loneliness of their users." },
+  { en: "A real relationship is based on reciprocity and trust." },
+  { en: "A griefbot is only a band-aid over a deeper wound." },
+  { en: "Talking to a machine every day can increase your isolation." },
+  { en: "We should not replace human contact with a virtual companion." },
+  { en: "The bereaved need support, not a digital ghost." },
+  { en: "Real love means choosing each other every day." }
+];
 var g6 = { i: 0, score: 0, answered: false, tries: 0, to: null };
 
 function g6Norm(s){
@@ -1075,8 +1087,8 @@ function startG6(){
 }
 function g6Show(){
   g6.answered = false; g6.tries = 0;
-  $("#g6-score").textContent = "Score : " + g6.score + "/" + G4_DATA.length;
-  $("#g6-progress").textContent = "Phrase " + (g6.i + 1) + " / " + G4_DATA.length;
+  $("#g6-score").textContent = "Score : " + g6.score + "/" + G6_DATA.length;
+  $("#g6-progress").textContent = "Phrase " + (g6.i + 1) + " / " + G6_DATA.length;
   $("#g6-warn").classList.remove("show");
   $("#g6-feedback").textContent = "";
   var inp = $("#g6-input");
@@ -1086,12 +1098,12 @@ function g6Show(){
   g6Play();
 }
 function g6Play(){
-  var q = G4_DATA[g6.i], idx = g6.i + 1;
+  var q = G6_DATA[g6.i], idx = g6.i + 1;
   g6.tries++;
   clearTimeout(g6.to);
   $("#g6-warn").classList.remove("show");
-  g4TryAudio("audio/g4_" + idx + ".mp3",
-    function(){ g4TryAudio("audio/g4_" + idx + ".wav",
+  g4TryAudio("audio/g6_" + idx + ".mp3",
+    function(){ g4TryAudio("audio/g6_" + idx + ".wav",
       function(){ clearTimeout(g6.to); speakBrowser(q.en); },
       function(){ clearTimeout(g6.to); }); },
     function(){ clearTimeout(g6.to); });
@@ -1100,7 +1112,7 @@ function g6Play(){
 }
 function g6Check(){
   if (g6.answered) return;
-  var q = G4_DATA[g6.i];
+  var q = G6_DATA[g6.i];
   var said = g6Norm(q.en), typed = g6Norm($("#g6-input").value);
   g6.answered = true;
   $("#g6-input").disabled = true;
@@ -1127,7 +1139,7 @@ function g6Check(){
     }
     f.innerHTML = "Tes mots : " + words + "<br>Correction : « " + fixed + " »";
   }
-  $("#g6-score").textContent = "Score : " + g6.score + "/" + G4_DATA.length;
+  $("#g6-score").textContent = "Score : " + g6.score + "/" + G6_DATA.length;
 }
 $("#g6-play").addEventListener("click", g6Play);
 $("#g6-check").addEventListener("click", g6Check);
@@ -1136,9 +1148,9 @@ $("#g6-input").addEventListener("keydown", function(e){
 });
 $("#g6-next").addEventListener("click", function(){
   g6.i++;
-  if (g6.i < G4_DATA.length){ g6Show(); }
+  if (g6.i < G6_DATA.length){ g6Show(); }
   else {
-    bestSet("g6", g6.score, G4_DATA.length);
+    bestSet("g6", g6.score, G6_DATA.length);
     $("#g6-progress").textContent = "";
     $("#g6-feedback").textContent = "";
     $("#g6-input").value = "";
@@ -1147,7 +1159,7 @@ $("#g6-next").addEventListener("click", function(){
     $("#g6-next").style.display = "none";
     $("#g6-check").style.display = "none";
     var f = $("#g6-final");
-    f.innerHTML = "<strong>Score final : " + g6.score + "/" + G4_DATA.length + "</strong>" +
+    f.innerHTML = "<strong>Score final : " + g6.score + "/" + G6_DATA.length + "</strong>" +
       (g6.score >= 7 ? "Plume de champion(ne) ! Tu es prêt(e) pour l'écrit."
        : g6.score >= 5 ? "Très bonne oreille ! Relis les corrections en vert et retente."
        : "Réécoute chaque phrase en t'aidant du jeu 4, puis retente la dictée.");
