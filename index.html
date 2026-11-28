@@ -9,15 +9,15 @@
     --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
     --primary:#4f46e5; --primary-soft:#eef2ff;
     --good:#15803d; --good-soft:#dcfce7; --bad:#b91c1c; --bad-soft:#fee2e2;
-    --g1:#0ea5e9; --g2:#d97706; --g3:#059669; --g4:#7c3aed; --g5:#e11d48;
+    --g1:#0ea5e9; --g2:#d97706; --g3:#059669; --g4:#7c3aed; --g5:#e11d48; --g6:#0d9488;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);
     background:linear-gradient(160deg,#eef2ff 0%,#fdf4ff 100%);min-height:100vh}
   header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.9);backdrop-filter:blur(6px);
     border-bottom:1px solid var(--line);padding:.5rem 1rem;display:flex;align-items:center;gap:.75rem}
-  .icon-btn{border:1px solid var(--line);background:#fff;border-radius:.6rem;padding:.4rem .6rem;
-    font-size:1rem;cursor:pointer}
+  .icon-btn{border:1px solid var(--line);background:#fff;border-radius:.7rem;padding:.55rem .8rem;
+    font-size:1.5rem;line-height:1;cursor:pointer}
   .icon-btn:hover{background:var(--primary-soft)}
   .brand{line-height:1.15}
   .brand strong{display:block;font-size:.95rem}
@@ -40,7 +40,7 @@
   .game-card p{margin:0;font-size:.85rem;color:var(--muted)}
   .game-card .best{display:inline-block;margin-top:.5rem;font-size:.75rem;color:var(--primary);font-weight:600}
   .c1{border-left-color:var(--g1)} .c2{border-left-color:var(--g2)} .c3{border-left-color:var(--g3)}
-  .c4{border-left-color:var(--g4)} .c5{border-left-color:var(--g5)}
+  .c4{border-left-color:var(--g4)} .c5{border-left-color:var(--g5)} .c6{border-left-color:var(--g6)}
   .btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:.75rem;
     padding:.55rem 1.1rem;font-size:.95rem;cursor:pointer;font-weight:600}
   .btn:hover{background:var(--primary-soft)}
@@ -105,6 +105,12 @@
   .audio-btn{background:var(--g4);color:#fff;border:none;border-radius:.9rem;padding:.7rem 1.3rem;
     font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;font-weight:600}
   .audio-btn:hover{filter:brightness(1.12)}
+  .dict-input{width:100%;margin-top:.9rem;padding:.7rem .9rem;font-size:1.05rem;font-family:inherit;
+    border:2px solid var(--line);border-radius:.7rem;outline:none;background:#fff}
+  .dict-input:focus{border-color:var(--g6)}
+  .dict-input:disabled{background:#f8fafc;color:var(--muted)}
+  .w-ok{color:var(--good);font-weight:600}
+  .w-bad{color:var(--bad);font-weight:600;text-decoration:underline}
   .transcript{margin-top:.6rem;font-style:italic;color:var(--muted);display:none}
   .transcript.show{display:block}
   .opponent{background:#f1f5f9;border:1px solid var(--line);border-left:6px solid var(--g5);
@@ -134,7 +140,7 @@
 
 <section id="home" class="screen active">
   <div class="hero">
-    <h1>5 jeux de révision</h1>
+    <h1>6 jeux de révision</h1>
     <p>Révise le vocabulaire, les arguments et les phrases clés du débat avant l'épreuve. Choisis un jeu et bonne chance !</p>
   </div>
   <div class="games">
@@ -167,6 +173,12 @@
       <h3>⚔️ Rebuttal Arena</h3>
       <p>L'adversaire attaque : choisis la meilleure riposte (6 duels).</p>
       <span class="best" data-best="g5"></span>
+    </button>
+    <button class="game-card c6" data-go="g6">
+      <div class="num">Jeu 6 · Écoute & écriture</div>
+      <h3>✍️ Dictée éclair</h3>
+      <p>Écoute la phrase puis écris-la mot pour mot (8 phrases).</p>
+      <span class="best" data-best="g6"></span>
     </button>
   </div>
 </section>
@@ -262,6 +274,24 @@
       <button class="btn" id="g5b-back" style="display:none">Rejouer le jeu 5</button>
     </div>
     <p class="feedback" id="g5b-feedback"></p>
+  </div>
+</section>
+
+<section id="g6" class="screen">
+  <h2>✍️ Jeu 6 · Dictée éclair</h2>
+  <p class="rules">Écoute la phrase en anglais (réécoute autant de fois que tu veux), puis écris-la exactement. La ponctuation, les majuscules et les apostrophes ne comptent pas : seuls les mots comptent. Appuie sur Entrée pour valider.</p>
+  <div class="card">
+    <div class="qhead"><span class="progress" id="g6-progress"></span><span class="scorepill" id="g6-score"></span></div>
+    <button class="audio-btn" id="g6-play">▶ Écouter</button>
+    <p class="warn" id="g6-warn">Aucun son n'est sorti : ouvre la page téléchargée dans ton navigateur, ou vérifie que le son est activé.</p>
+    <input class="dict-input" id="g6-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Écris la phrase entendue…" aria-label="Ta réponse">
+    <p class="feedback" id="g6-feedback"></p>
+    <div class="final" id="g6-final"></div>
+    <div class="actions">
+      <button class="btn primary" id="g6-check">Vérifier</button>
+      <button class="btn primary" id="g6-next" style="display:none">Suivante →</button>
+      <button class="btn" id="g6-restart">Rejouer</button>
+    </div>
   </div>
 </section>
 
@@ -1026,6 +1056,109 @@ $("#g5-next2").addEventListener("click", function(){
 });
 $("#g5b-restart").addEventListener("click", startG5Sort);
 $("#g5b-back").addEventListener("click", startG5);
+
+/* =====================================================================
+   JEU 6 : DICTEE ECLAIR (memes phrases audio que le jeu 4)
+   ===================================================================== */
+var g6 = { i: 0, score: 0, answered: false, tries: 0, to: null };
+
+function g6Norm(s){
+  return s.toLowerCase().replace(/\u2019/g, "'")
+    .replace(/[^a-z0-9']/g, " ").replace(/\s+/g, " ").trim()
+    .split(" ").filter(function(w){ return w; });
+}
+function startG6(){
+  g6.i = 0; g6.score = 0;
+  $("#g6-final").classList.remove("show");
+  $("#g6-final").innerHTML = "";
+  g6Show();
+}
+function g6Show(){
+  g6.answered = false; g6.tries = 0;
+  $("#g6-score").textContent = "Score : " + g6.score + "/" + G4_DATA.length;
+  $("#g6-progress").textContent = "Phrase " + (g6.i + 1) + " / " + G4_DATA.length;
+  $("#g6-warn").classList.remove("show");
+  $("#g6-feedback").textContent = "";
+  var inp = $("#g6-input");
+  inp.value = ""; inp.disabled = false;
+  $("#g6-check").style.display = "";
+  $("#g6-next").style.display = "none";
+  g6Play();
+}
+function g6Play(){
+  var q = G4_DATA[g6.i], idx = g6.i + 1;
+  g6.tries++;
+  clearTimeout(g6.to);
+  $("#g6-warn").classList.remove("show");
+  g4TryAudio("audio/g4_" + idx + ".mp3",
+    function(){ g4TryAudio("audio/g4_" + idx + ".wav",
+      function(){ clearTimeout(g6.to); speakBrowser(q.en); },
+      function(){ clearTimeout(g6.to); }); },
+    function(){ clearTimeout(g6.to); });
+  g6.to = setTimeout(function(){ speakBrowser(q.en); }, 3000);
+  if (g6.tries === 3) $("#g6-warn").classList.add("show");
+}
+function g6Check(){
+  if (g6.answered) return;
+  var q = G4_DATA[g6.i];
+  var said = g6Norm(q.en), typed = g6Norm($("#g6-input").value);
+  g6.answered = true;
+  $("#g6-input").disabled = true;
+  $("#g6-check").style.display = "none";
+  $("#g6-next").style.display = "";
+  var ok = typed.length === said.length && said.every(function(w, k){ return w === typed[k]; });
+  if (ok) g6.score++;
+  var words = "";
+  var max = Math.max(said.length, typed.length);
+  for (var k = 0; k < max; k++){
+    words += (k ? " " : "");
+    if (typed[k] === said[k]) words += '<span class="w-ok">' + said[k] + "</span>";
+    else words += '<span class="w-bad">' + (typed[k] !== undefined ? typed[k] : "…") + "</span>";
+  }
+  var f = $("#g6-feedback");
+  if (ok){
+    f.innerHTML = "✅ Parfait, mot pour mot !";
+  } else {
+    var fixed = "";
+    for (var j = 0; j < said.length; j++){
+      fixed += (j ? " " : "") + (typed[j] === said[j]
+        ? '<span class="w-ok">' + said[j] + "</span>"
+        : '<span class="w-bad">' + said[j] + "</span>");
+    }
+    f.innerHTML = "Tes mots : " + words + "<br>Correction : « " + fixed + " »";
+  }
+  $("#g6-score").textContent = "Score : " + g6.score + "/" + G4_DATA.length;
+}
+$("#g6-play").addEventListener("click", g6Play);
+$("#g6-check").addEventListener("click", g6Check);
+$("#g6-input").addEventListener("keydown", function(e){
+  if (e.key === "Enter") g6Check();
+});
+$("#g6-next").addEventListener("click", function(){
+  g6.i++;
+  if (g6.i < G4_DATA.length){ g6Show(); }
+  else {
+    bestSet("g6", g6.score, G4_DATA.length);
+    $("#g6-progress").textContent = "";
+    $("#g6-feedback").textContent = "";
+    $("#g6-input").value = "";
+    $("#g6-input").style.display = "none";
+    $("#g6-play").style.display = "none";
+    $("#g6-next").style.display = "none";
+    $("#g6-check").style.display = "none";
+    var f = $("#g6-final");
+    f.innerHTML = "<strong>Score final : " + g6.score + "/" + G4_DATA.length + "</strong>" +
+      (g6.score >= 7 ? "Plume de champion(ne) ! Tu es prêt(e) pour l'écrit."
+       : g6.score >= 5 ? "Très bonne oreille ! Relis les corrections en vert et retente."
+       : "Réécoute chaque phrase en t'aidant du jeu 4, puis retente la dictée.");
+    f.classList.add("show");
+  }
+});
+$("#g6-restart").addEventListener("click", function(){
+  $("#g6-input").style.display = "";
+  $("#g6-play").style.display = "";
+  startG6();
+});
 </script>
 </body>
 </html>

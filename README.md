@@ -1,6 +1,6 @@
 # AI Companions : jeux de révision (anglais)
 
-Cinq jeux en ligne pour réviser le vocabulaire et les formules de débat sur les
+Six jeux en ligne pour réviser le vocabulaire et les formules de débat sur les
 AI girlfriends et les griefbots, pour des élèves de niveau B1-B2.
 
 | Jeu | Objectif |
@@ -10,6 +10,7 @@ AI girlfriends et les griefbots, pour des élèves de niveau B1-B2.
 | 3. Traduction FR vers EN | QCM sur les phrases de débat à réutiliser |
 | 4. Compréhension orale | Identifier la phrase entendue |
 | 5. Rebuttal Arena | Manche 1 : choisir la meilleure riposte (concede & rebut) ; manche 2 : trier les ripostes ratées (capitulation, attaque ad hominem, hors-sujet) |
+| 6. Dictée éclair | Écouter la phrase puis l'écrire mot pour mot |
 
 ## Licence
 
